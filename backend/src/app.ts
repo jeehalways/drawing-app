@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import logger from "./config/logger";
 import healthRouter from "./routes/health";
+import registerRouter from "./routes/register";
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.use((req, _res, next) => {
 });
 
 app.use("/api/health", healthRouter);
+app.use("/api/register", registerRouter);
 
 export default app;
