@@ -1,0 +1,16 @@
+# BACKEND (Node, TypeScript, Express, Prisma, Jest)
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# Prisma
+backend/prisma/.env
+backend/prisma/dev.db
+backend/prisma/*.log
+backend/prisma/migrations/.DS_Store
+
+# Jest
+backend/coverage/
+backend/jest-cache/
