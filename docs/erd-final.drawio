@@ -1,0 +1,28 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="diagram1" name="ERD">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1"
+      fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="2" value="&lt;b&gt;User&lt;/b&gt;&lt;br&gt;id: UUID (PK)&lt;br&gt;name: string&lt;br&gt;birthday: date&lt;br&gt;createdAt: datetime"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a9c4ff;strokeColor=#5b79ff;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="3" value="&lt;b&gt;Drawing&lt;/b&gt;&lt;br&gt;id: UUID (PK)&lt;br&gt;userId: UUID (FK)&lt;br&gt;imageData: string&lt;br&gt;createdAt: datetime"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5a6ff;strokeColor=#9c4dcc;"
+                vertex="1" parent="1">
+          <mxGeometry x="320" y="40" width="220" height="170" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="4" style="endArrow=block;html=1;strokeWidth=2;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
