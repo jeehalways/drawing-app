@@ -10,7 +10,35 @@ const registerSchema = z.object({
     message: "Invalid date format",
   }),
 });
-
+/**
+ * @openapi
+ * /api/register:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - birthday
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Jessica
+ *               birthday:
+ *                 type: string
+ *                 example: "1997-03-15"
+ *     responses:
+ *       201:
+ *         description: User created
+ *       400:
+ *         description: Validation error
+ */
 router.post("/", async (req, res) => {
   try {
     const parsed = registerSchema.parse(req.body);
