@@ -9,13 +9,25 @@ const options = {
       version,
       description: "API documentation for the Drawing App backend",
     },
-    servers: [
+    servers: [{ url: "http://localhost:3000" }],
+    components: {
+      securitySchemes: {
+        FirebaseAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description:
+            "Firebase ID Token (JWT) returned after a user/admin logs in.",
+        },
+      },
+    },
+    security: [
       {
-        url: "http://localhost:3000",
+        FirebaseAuth: [],
       },
     ],
   },
-  apis: ["./src/routes/*.ts"], // where Swagger will look for documentation
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
