@@ -17,9 +17,25 @@
       <button id="logoutBtn">Logout</button>
     </header>
 
+    <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by user name..."
+      />
+    </div>
+
     <div class="admin-container">
       <h2>All Drawings</h2>
       <div id="drawings" class="drawings-grid"></div>
+    </div>
+
+    <!-- Zoom Modal -->
+    <div id="zoomModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeModal" class="close-btn">&times;</span>
+        <img id="zoomImage" src="" alt="Zoomed drawing" />
+      </div>
     </div>
 
     <script src="js/firebaseConfig.js"></script>
