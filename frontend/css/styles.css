@@ -1,0 +1,52 @@
+/* Light mode */
+:root {
+    --bg: #ffffff;
+    --text: #222222;
+    --button-bg: #222222;
+    --button-text: #ffffff;
+}
+
+/* Dark mode */
+.dark {
+    --bg: #222222;
+    --text: #ffffff;
+    --button-bg: #ffffff;
+    --button-text: #222222;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+input,
+button,
+select {
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button {
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    cursor: pointer;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.canvas-controls {
+    margin-bottom: 10px;
+}
+
+canvas {
+    border: 2px solid var(--text);
+    background: white;
+}
