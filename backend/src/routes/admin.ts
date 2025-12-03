@@ -1,6 +1,5 @@
 import { Router } from "express";
 import prisma from "../config/db";
-// Placeholder until implement Firebase
 import { verifyAdmin } from "../middleware/verifyAdmin";
 
 const router = Router();
@@ -32,6 +31,41 @@ router.get("/drawings", verifyAdmin, async (_req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/**
+ * @openapi
+ * /api/admin/drawings/{id}:
+ *   delete:
+ *     tags:
+ *       - Admin
+ *     summary: Delete a drawing by ID (admin only)
+ *     security:
+ *       - FirebaseAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Drawing ID
+ *     responses:
+ *       200:
+ *         description: Drawing deleted successfully
+ *       404:
+ *         description: Drawing not found
+ */
+router.delete("/drawings/:id", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await prisma.drawing.delete({
+      where: { id },
+    });
+
+    res.json({ message: "Deleted", deleted });
+  } catch (err) {
+    console.error("Delete error:", err);
+    return res.status(404).json({ error: "Drawing not found" });
   }
 });
 

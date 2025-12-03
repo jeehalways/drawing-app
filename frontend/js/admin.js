@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     const container = document.getElementById("drawings");
 
-    // Card Layout
+    // Card Layout + Delete Button
     container.innerHTML = data
       .map((d) => {
         const createdAt = new Date(d.createdAt).toLocaleDateString();
@@ -61,10 +61,35 @@ document.addEventListener("DOMContentLoaded", () => {
             <img src="${d.imageData}" alt="Drawing" />
             <div class="user-name">${d.user.name}</div>
             <div class="date">${createdAt}</div>
+
+            <button class="delete-btn" data-id="${d.id}">Delete</button>
           </div>
         `;
       })
       .join("");
+
+    // Add delete button handlers
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-id");
+
+        if (!confirm("Are you sure you want to delete this drawing?")) return;
+
+        const delRes = await fetch(
+          `http://localhost:3000/api/admin/drawings/${id}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (delRes.status === 200) {
+          loadDrawings(); // refresh UI
+        } else {
+          alert("Failed to delete drawing.");
+        }
+      });
+    });
   }
 
   loadDrawings();
