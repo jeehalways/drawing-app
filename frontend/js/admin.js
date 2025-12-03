@@ -6,8 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Full dataset of drawings (for filtering)
   let allDrawings = [];
+  let currentSearch = "";
+  let currentSort = "newest";
 
-  // Handle token refresh / logout
+  // Pagination state
+  let currentPage = 1;
+  const pageSize = 9;
+
+  // Token refresh / logout handler
   firebase.auth().onIdTokenChanged(async (user) => {
     if (user) {
       const newToken = await user.getIdToken(true);
@@ -18,14 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Check token exists
+  // Check token
   const token = localStorage.getItem("adminToken");
   if (!token) {
     window.location.href = "admin-login.html";
     return;
   }
 
-  // Logout button
+  // Logout
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     await firebase.auth().signOut();
     localStorage.removeItem("adminToken");
@@ -37,29 +43,120 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("dark");
   });
 
-  // Filter Render Function
+  // SORTING FUNCTION
+  function sortDrawings(data) {
+    let sorted = [...data];
 
-  function renderFilteredDrawings(data) {
+    switch (currentSort) {
+      case "newest":
+        sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case "oldest":
+        sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case "az":
+        sorted.sort((a, b) => a.user.name.localeCompare(b.user.name));
+        break;
+      case "za":
+        sorted.sort((a, b) => b.user.name.localeCompare(a.user.name));
+        break;
+    }
+
+    return sorted;
+  }
+
+  // FILTER + SORT TOGETHER
+  function getFilteredAndSorted() {
+    const filtered = allDrawings.filter((d) =>
+      d.user.name.toLowerCase().includes(currentSearch.toLowerCase())
+    );
+
+    return sortDrawings(filtered);
+  }
+
+  // PAGINATION
+  function getPaginatedData(data) {
+    const start = (currentPage - 1) * pageSize;
+    return data.slice(start, start + pageSize);
+  }
+
+  function updatePageIndicator(totalPages) {
+    document.getElementById(
+      "pageIndicator"
+    ).textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+  /**
+   * USER PROFILE MODAL FUNCTION
+   */
+  function openUserProfile(userId) {
+    const userModal = document.getElementById("userModal");
+    const nameEl = document.getElementById("profileName");
+    const statsEl = document.getElementById("profileStats");
+    const drawingsContainer = document.getElementById("profileDrawings");
+
+    // Find all drawings by this user
+    const userDrawings = allDrawings.filter((d) => d.userId === userId);
+
+    if (userDrawings.length === 0) return;
+
+    const userName = userDrawings[0].user.name;
+
+    nameEl.textContent = userName;
+    statsEl.textContent = `Total drawings: ${userDrawings.length}`;
+
+    drawingsContainer.innerHTML = userDrawings
+      .map(
+        (d) => `
+      <img src="${d.imageData}" class="profile-thumb" />
+    `
+      )
+      .join("");
+
+    userModal.classList.remove("hidden");
+
+    // Zoom inside modal
+    document.querySelectorAll(".profile-thumb").forEach((thumb) => {
+      thumb.addEventListener("click", () => {
+        document.getElementById("zoomImage").src = thumb.src;
+        document.getElementById("zoomModal").classList.remove("hidden");
+      });
+    });
+  }
+
+  // RENDER CARDS
+  function renderFilteredDrawings(drawings) {
     const container = document.getElementById("drawings");
 
-    // Card Layout + Delete Button
-    container.innerHTML = data
+    const totalPages = Math.ceil(drawings.length / pageSize);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+
+    const paginated = getPaginatedData(drawings);
+
+    container.innerHTML = paginated
       .map((d) => {
         const createdAt = new Date(d.createdAt).toLocaleDateString();
 
         return `
           <div class="drawing-card">
             <img src="${d.imageData}" alt="Drawing" />
-            <div class="user-name">${d.user.name}</div>
+
+            <div class="user-name user-profile-btn" data-user="${d.userId}">
+              ${d.user.name}
+            </div>
+
             <div class="date">${createdAt}</div>
 
+            <button class="download-btn" data-src="${d.imageData}">Download</button>
             <button class="delete-btn" data-id="${d.id}">Delete</button>
           </div>
         `;
       })
       .join("");
 
-    // Delete Handlers
+    updatePageIndicator(totalPages);
+
+    // DELETE BUTTON HANDLERS
     document.querySelectorAll(".delete-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-id");
@@ -75,31 +172,68 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (delRes.status === 200) {
-          loadDrawings(); // refresh entire list
+          loadDrawings(); // refresh UI
         } else {
           alert("Failed to delete drawing.");
         }
       });
     });
 
-    // Zoom Handlers
+    // DOWNLOAD BUTTON HANDLERS
+    document.querySelectorAll(".download-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const src = btn.getAttribute("data-src");
+
+        const link = document.createElement("a");
+        link.href = src;
+        link.download = "drawing.png";
+        link.click();
+      });
+    });
+
+    // ZOOM MODAL
     document.querySelectorAll(".drawing-card img").forEach((img) => {
       img.addEventListener("click", () => {
-        const zoomModal = document.getElementById("zoomModal");
-        const zoomImg = document.getElementById("zoomImage");
+        document.getElementById("zoomImage").src = img.src;
+        document.getElementById("zoomModal").classList.remove("hidden");
+      });
+    });
 
-        zoomImg.src = img.src;
-        zoomModal.classList.remove("hidden");
+    // USER PROFILE CLICK HANDLER
+    document.querySelectorAll(".user-profile-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const userId = btn.getAttribute("data-user");
+        openUserProfile(userId);
       });
     });
   }
 
-  // Load All Drawings
+  // CLOSE IMAGE ZOOM MODAL
+  document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("zoomModal").classList.add("hidden");
+  });
+
+  document.getElementById("zoomModal").addEventListener("click", (e) => {
+    if (e.target.id === "zoomModal") {
+      document.getElementById("zoomModal").classList.add("hidden");
+    }
+  });
+
+  // CLOSE USER PROFILE MODAL
+  document.getElementById("closeUserModal").addEventListener("click", () => {
+    document.getElementById("userModal").classList.add("hidden");
+  });
+
+  document.getElementById("userModal").addEventListener("click", (e) => {
+    if (e.target.id === "userModal") {
+      document.getElementById("userModal").classList.add("hidden");
+    }
+  });
+
+  // LOAD ALL DRAWINGS FROM BACKEND
   async function loadDrawings() {
     const res = await fetch("http://localhost:3000/api/admin/drawings", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.status !== 200) {
@@ -110,37 +244,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Save full dataset for filtering
     allDrawings = await res.json();
-
-    // Initial render
-    renderFilteredDrawings(allDrawings);
+    renderFilteredDrawings(getFilteredAndSorted());
   }
 
   loadDrawings();
 
-  // Search bar event listener
-  const searchInput = document.getElementById("searchInput");
-
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      const search = e.target.value.toLowerCase();
-
-      const filtered = allDrawings.filter((d) =>
-        d.user.name.toLowerCase().includes(search)
-      );
-
-      renderFilteredDrawings(filtered);
-    });
-  }
-
-  // Modal close events
-
-  document.getElementById("closeModal").addEventListener("click", () => {
-    document.getElementById("zoomModal").classList.add("hidden");
+  // SEARCH HANDLER
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    currentSearch = e.target.value.toLowerCase();
+    currentPage = 1;
+    renderFilteredDrawings(getFilteredAndSorted());
   });
 
-  document.getElementById("zoomModal").addEventListener("click", (e) => {
-    if (e.target.id === "zoomModal") {
-      document.getElementById("zoomModal").classList.add("hidden");
+  // SORT HANDLER
+  document.getElementById("sortSelect").addEventListener("change", (e) => {
+    currentSort = e.target.value;
+    renderFilteredDrawings(getFilteredAndSorted());
+  });
+
+  // PAGINATION BUTTONS
+  document.getElementById("prevPageBtn").addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderFilteredDrawings(getFilteredAndSorted());
+    }
+  });
+
+  document.getElementById("nextPageBtn").addEventListener("click", () => {
+    const totalPages = Math.ceil(getFilteredAndSorted().length / pageSize);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderFilteredDrawings(getFilteredAndSorted());
     }
   });
 });

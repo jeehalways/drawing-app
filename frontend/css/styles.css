@@ -229,3 +229,76 @@ canvas {
     background: var(--bg);
     color: var(--text);
 }
+
+.sort-container {
+    text-align: center;
+    margin: 10px 0 20px;
+}
+
+#sortSelect {
+    padding: 10px;
+    width: 200px;
+    border-radius: 8px;
+    font-size: 16px;
+    border: 1px solid var(--text);
+    background: var(--bg);
+    color: var(--text);
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.pagination-container button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: var(--button-bg);
+    color: var(--button-text);
+    font-size: 15px;
+}
+
+#pageIndicator {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.download-btn {
+    background: #1976d2;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.download-btn:hover {
+    background: #2196f3;
+}
+
+#profileDrawings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.profile-thumb {
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.profile-thumb:hover {
+    transform: scale(1.05);
+}

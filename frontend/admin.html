@@ -25,9 +25,24 @@
       />
     </div>
 
+    <div class="sort-container">
+      <select id="sortSelect">
+        <option value="newest">Newest → Oldest</option>
+        <option value="oldest">Oldest → Newest</option>
+        <option value="az">Name A → Z</option>
+        <option value="za">Name Z → A</option>
+      </select>
+    </div>
+
     <div class="admin-container">
       <h2>All Drawings</h2>
       <div id="drawings" class="drawings-grid"></div>
+    </div>
+
+    <div class="pagination-container">
+      <button id="prevPageBtn">Previous</button>
+      <span id="pageIndicator">Page 1</span>
+      <button id="nextPageBtn">Next</button>
     </div>
 
     <!-- Zoom Modal -->
@@ -35,6 +50,18 @@
       <div class="modal-content">
         <span id="closeModal" class="close-btn">&times;</span>
         <img id="zoomImage" src="" alt="Zoomed drawing" />
+      </div>
+    </div>
+
+    <!-- USER PROFILE MODAL -->
+    <div id="userModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeUserModal" class="close">&times;</span>
+
+        <h2 id="profileName"></h2>
+        <p id="profileStats"></p>
+
+        <div id="profileDrawings"></div>
       </div>
     </div>
 
