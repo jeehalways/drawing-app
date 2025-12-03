@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Login</h1>
+  <button id="modeToggle">Toggle Light/Dark</button>
+</header>
+
+<div>
+  <label>Email:</label>
+  <input type="email" id="email">
+
+  <label>Password:</label>
+  <input type="password" id="password">
+
+  <button id="loginBtn">Login</button>
+</div>
+
+<hr>
+
+<button id="googleBtn">Login with Google</button>
+
+<!-- Shared Firebase Config -->
+<script src="js/firebaseConfig.js"></script>
+
+<!-- Login Script -->
+<script src="js/admin-login.js"></script>
+
+</body>
+</html>
