@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-</head>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  </head>
 
-<body>
-  <header>
-    <h1>Admin Dashboard</h1>
-    <button id="modeToggle">Toggle Light/Dark</button>
-    <button id="logoutBtn">Logout</button>
-  </header>
+  <body>
+    <header>
+      <h1>Admin Dashboard</h1>
+      <button id="modeToggle">Toggle Light/Dark</button>
+      <button id="logoutBtn">Logout</button>
+    </header>
 
-  <div id="drawings"></div>
+    <div class="admin-container">
+      <h2>All Drawings</h2>
+      <div id="drawings" class="drawings-grid"></div>
+    </div>
 
- 
-  <script src="js/firebaseConfig.js"></script>
-  <script src="js/admin.js"></script>
-</body>
+    <script src="js/firebaseConfig.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
 </html>
-

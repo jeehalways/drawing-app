@@ -30,9 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Theme toggle
-  document
-    .getElementById("modeToggle")
-    .addEventListener("click", () => document.body.classList.toggle("dark"));
+  document.getElementById("modeToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+  });
 
   // Load drawings
   async function loadDrawings() {
@@ -51,15 +51,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     const container = document.getElementById("drawings");
 
+    // Card Layout
     container.innerHTML = data
-      .map(
-        (d) => `
-        <div style="margin-bottom:20px;">
-          <h3>${d.user.name}</h3>
-          <img src="${d.imageData}" width="200" />
-        </div>
-      `
-      )
+      .map((d) => {
+        const createdAt = new Date(d.createdAt).toLocaleDateString();
+
+        return `
+          <div class="drawing-card">
+            <img src="${d.imageData}" alt="Drawing" />
+            <div class="user-name">${d.user.name}</div>
+            <div class="date">${createdAt}</div>
+          </div>
+        `;
+      })
       .join("");
   }
 
