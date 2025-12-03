@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return sorted;
   }
 
-  // FILTER + SORT TOGETHER
+  // Filter + Sort together
   function getFilteredAndSorted() {
     const filtered = allDrawings.filter((d) =>
       d.user.name.toLowerCase().includes(currentSearch.toLowerCase())
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return sortDrawings(filtered);
   }
 
-  // PAGINATION
+  // Pagination
   function getPaginatedData(data) {
     const start = (currentPage - 1) * pageSize;
     return data.slice(start, start + pageSize);
@@ -86,9 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ).textContent = `Page ${currentPage} of ${totalPages}`;
   }
 
-  /**
-   * USER PROFILE MODAL FUNCTION
-   */
+  // User profile modal function
   function openUserProfile(userId) {
     const userModal = document.getElementById("userModal");
     const nameEl = document.getElementById("profileName");
@@ -124,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // RENDER CARDS
+  // Render cards
   function renderFilteredDrawings(drawings) {
     const container = document.getElementById("drawings");
 
@@ -156,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updatePageIndicator(totalPages);
 
-    // DELETE BUTTON HANDLERS
+    // Delete button handlers
     document.querySelectorAll(".delete-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-id");
@@ -179,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // DOWNLOAD BUTTON HANDLERS
+    // Download button handlers
     document.querySelectorAll(".download-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const src = btn.getAttribute("data-src");
@@ -191,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // ZOOM MODAL
+    // Zoom modal
     document.querySelectorAll(".drawing-card img").forEach((img) => {
       img.addEventListener("click", () => {
         document.getElementById("zoomImage").src = img.src;
@@ -199,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // USER PROFILE CLICK HANDLER
+    // User profile click handler
     document.querySelectorAll(".user-profile-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const userId = btn.getAttribute("data-user");
@@ -208,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // CLOSE IMAGE ZOOM MODAL
+  // Close image zoom modal
   document.getElementById("closeModal").addEventListener("click", () => {
     document.getElementById("zoomModal").classList.add("hidden");
   });
@@ -219,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // CLOSE USER PROFILE MODAL
+  // Close user profile modal
   document.getElementById("closeUserModal").addEventListener("click", () => {
     document.getElementById("userModal").classList.add("hidden");
   });
@@ -230,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // LOAD ALL DRAWINGS FROM BACKEND
+  // Load all drawings from backend
   async function loadDrawings() {
     const res = await fetch("http://localhost:3000/api/admin/drawings", {
       headers: { Authorization: `Bearer ${token}` },
@@ -249,20 +247,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadDrawings();
 
-  // SEARCH HANDLER
+  // Search handler
   document.getElementById("searchInput").addEventListener("input", (e) => {
     currentSearch = e.target.value.toLowerCase();
     currentPage = 1;
     renderFilteredDrawings(getFilteredAndSorted());
   });
 
-  // SORT HANDLER
+  // Sort handler
   document.getElementById("sortSelect").addEventListener("change", (e) => {
     currentSort = e.target.value;
     renderFilteredDrawings(getFilteredAndSorted());
   });
 
-  // PAGINATION BUTTONS
+  // Pagination buttons
   document.getElementById("prevPageBtn").addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
