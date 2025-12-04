@@ -7,8 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./docs/swagger";
 import drawingsRouter from "./routes/drawings";
 import adminRouter from "./routes/admin";
-
-
+import registerFirebaseRouter from "./routes/registerFirebase";
 
 const app = express();
 
@@ -26,6 +25,6 @@ app.use("/api/register", registerRouter);
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/drawings", drawingsRouter);
 app.use("/api/admin", adminRouter);
-
+app.use("/api/register/firebase", registerFirebaseRouter);
 
 export default app;

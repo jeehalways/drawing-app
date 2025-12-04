@@ -8,12 +8,12 @@ generator client {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  birthday  DateTime
-  createdAt DateTime  @default(now())
-
-  drawings  Drawing[]
+  id         String    @id @default(uuid())
+  firebaseId String    @unique
+  email      String?   @unique
+  name       String?
+  birthday   DateTime?
+  drawings   Drawing[]
 }
 
 model Drawing {

@@ -1,32 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Register</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
 
-<header>
-  <h1>Register</h1>
-  <button id="modeToggle">Toggle Light/Dark</button>
-</header>
+  <body>
+    <header>
+      <h1>Register</h1>
+      <button id="modeToggle">Toggle Light/Dark</button>
+    </header>
 
-<form id="registerForm">
-  <label>
-    Name:
-    <input required type="text" id="name">
-  </label>
+    <div class="form-container">
+      <label>Name:</label>
+      <input type="text" id="name" placeholder="Your name" />
 
-  <label>
-    Birthday:
-    <input required type="date" id="birthday">
-  </label>
+      <label>Birthday:</label>
+      <input type="date" id="birthday" />
 
-  <button type="submit">Continue</button>
-</form>
+      <button id="registerBtn">Register</button>
+    </div>
 
-<script src="js/register.js"></script>
-
-</body>
+    <script src="js/register.js"></script>
+  </body>
 </html>

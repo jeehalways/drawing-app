@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome</title>
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <!-- QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <h1>Welcome to the Drawing App</h1>
+      <button id="modeToggle">Toggle Light/Dark</button>
+    </header>
+
+    <h2>Scan to Register</h2>
+    <canvas id="qrCanvas"></canvas>
+
+    <hr />
+
+    <h2>Or choose a login option</h2>
+
+    <div class="auth-buttons">
+      <button id="googleBtn">Continue with Google</button>
+      <button id="githubBtn">Continue with GitHub</button>
+      <button id="manualBtn">Register Manually</button>
+    </div>
+
+    <script src="js/firebaseConfig.js"></script>
+    <script src="js/home.js"></script>
+  </body>
+</html>
