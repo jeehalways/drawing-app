@@ -1,23 +1,50 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+// ------------------------------------------------------
+//  SIMPLE IN-MEMORY STATE (NO ZUSTAND)
+// ------------------------------------------------------
 
-let painting = false;
 let brushSize = 5;
 let color = "#000000";
+let erasing = false;
 
-// Get userId from URL
+// ------------------------------------------------------
+//  CANVAS SETUP
+// ------------------------------------------------------
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let painting = false;
+
+// User ID from URL
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
 
+// ------------------------------------------------------
+//  UI EVENTS
+// ------------------------------------------------------
+
 document.getElementById("brushSize").addEventListener("input", (e) => {
-  brushSize = e.target.value;
+  brushSize = Number(e.target.value);
 });
 
 document.getElementById("colorPicker").addEventListener("input", (e) => {
   color = e.target.value;
+  erasing = false;
+  document.getElementById("eraserBtn").classList.remove("active");
 });
 
-// Mouse events
+document.getElementById("modeToggle").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+});
+
+document.getElementById("eraserBtn").addEventListener("click", () => {
+  erasing = !erasing;
+  document.getElementById("eraserBtn").classList.toggle("active", erasing);
+});
+
+// ------------------------------------------------------
+//  DRAWING LOGIC
+// ------------------------------------------------------
+
 canvas.addEventListener("mousedown", start);
 canvas.addEventListener("mouseup", stop);
 canvas.addEventListener("mousemove", draw);
@@ -37,21 +64,30 @@ function draw(e) {
 
   ctx.lineWidth = brushSize;
   ctx.lineCap = "round";
-  ctx.strokeStyle = color;
+  ctx.strokeStyle = erasing ? "#ffffff" : color;
 
   const rect = canvas.getBoundingClientRect();
-  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  ctx.lineTo(x, y);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.moveTo(x, y);
 }
 
-// Clear canvas
+// ------------------------------------------------------
+//  CLEAR CANVAS
+// ------------------------------------------------------
+
 document.getElementById("clearBtn").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-// Save to backend
+// ------------------------------------------------------
+//  SAVE TO BACKEND
+// ------------------------------------------------------
+
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
 
@@ -68,16 +104,14 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   }
 });
 
-// Download drawing
+// ------------------------------------------------------
+//  DOWNLOAD DRAWING
+// ------------------------------------------------------
+
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const url = canvas.toDataURL("image/png");
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "drawing.png";
-  link.click();
-});
-
-// Light/Dark mode
-document.getElementById("modeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "drawing.png";
+  a.click();
 });

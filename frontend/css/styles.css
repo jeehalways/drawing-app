@@ -281,6 +281,26 @@ canvas {
     transition: background 0.2s;
 }
 
+.eraser-btn {
+    background: #f57c00;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.eraser-btn:hover {
+    background: #ff9800;
+    transform: scale(1.03);
+}
+
+.eraser-btn.active {
+    background: #bf360c;
+}
+
 .download-btn:hover {
     background: #2196f3;
 }
