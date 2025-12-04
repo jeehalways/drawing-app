@@ -1,15 +1,9 @@
-// ------------------------------------------------------
-//  SIMPLE IN-MEMORY STATE (NO ZUSTAND)
-// ------------------------------------------------------
-
+// Simple in-memory state
 let brushSize = 5;
 let color = "#000000";
 let erasing = false;
 
-// ------------------------------------------------------
-//  CANVAS SETUP
-// ------------------------------------------------------
-
+//  Canvas Setup
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let painting = false;
@@ -18,10 +12,7 @@ let painting = false;
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
 
-// ------------------------------------------------------
-//  UI EVENTS
-// ------------------------------------------------------
-
+// UI events
 document.getElementById("brushSize").addEventListener("input", (e) => {
   brushSize = Number(e.target.value);
 });
@@ -41,10 +32,7 @@ document.getElementById("eraserBtn").addEventListener("click", () => {
   document.getElementById("eraserBtn").classList.toggle("active", erasing);
 });
 
-// ------------------------------------------------------
-//  DRAWING LOGIC
-// ------------------------------------------------------
-
+// Drawing logic
 canvas.addEventListener("mousedown", start);
 canvas.addEventListener("mouseup", stop);
 canvas.addEventListener("mousemove", draw);
@@ -76,18 +64,12 @@ function draw(e) {
   ctx.moveTo(x, y);
 }
 
-// ------------------------------------------------------
-//  CLEAR CANVAS
-// ------------------------------------------------------
-
+// Clear canvas
 document.getElementById("clearBtn").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-// ------------------------------------------------------
-//  SAVE TO BACKEND
-// ------------------------------------------------------
-
+// Save to backend
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
 
@@ -104,10 +86,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   }
 });
 
-// ------------------------------------------------------
-//  DOWNLOAD DRAWING
-// ------------------------------------------------------
-
+// Donwload drawings
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const url = canvas.toDataURL("image/png");
   const a = document.createElement("a");
