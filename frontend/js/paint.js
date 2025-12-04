@@ -1,3 +1,8 @@
+// FIREBASE INIT (required for logout and auth checks)
+firebase.initializeApp(firebaseConfig);
+
+console.log("paint.js loaded");
+
 // Simple in-memory state
 let brushSize = 5;
 let color = "#000000";
@@ -93,4 +98,14 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   a.href = url;
   a.download = "drawing.png";
   a.click();
+});
+
+// Logout button
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await firebase.auth().signOut(); // logout from google/github/firebase
+    window.location.href = "home.html"; // redirect to login/QR page
+  } catch (err) {
+    alert("Logout failed: " + err.message);
+  }
 });

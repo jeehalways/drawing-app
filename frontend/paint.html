@@ -10,6 +10,7 @@
     <header>
       <h1>Canvas</h1>
       <button id="modeToggle">Toggle Light/Dark</button>
+      <button id="logoutBtn">Logout</button>
     </header>
 
     <div class="canvas-controls">
@@ -31,6 +32,13 @@
     </div>
 
     <canvas id="canvas" width="600" height="400"></canvas>
+
+    <!-- FIREBASE LOAD ORDER (required for logout) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <!-- Your firebase config -->
+    <script src="js/firebaseConfig.js"></script>
 
     <script src="js/paint.js"></script>
   </body>
