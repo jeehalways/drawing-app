@@ -60,6 +60,26 @@ canvas.addEventListener("touchmove", (e) => e.preventDefault(), {
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
 
+//  Smooth Brush Engine Helpers
+let lastX = 0;
+let lastY = 0;
+let lastTime = 0;
+let lastLineWidth = brushSize;
+
+function distance(x1, y1, x2, y2) {
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
+
+function calculateLineWidth(velocity) {
+  const minWidth = brushSize * 0.4;
+  const maxWidth = brushSize * 1.4;
+
+  const v = Math.min(velocity, 3);
+  const width = maxWidth - (v / 3) * (maxWidth - minWidth);
+
+  return lastLineWidth * 0.7 + width * 0.3;
+}
+
 // Helper functions
 function saveState() {
   history.push(canvas.toDataURL());
@@ -180,6 +200,11 @@ function start(e) {
   startX = pos.x;
   startY = pos.y;
 
+  lastX = pos.x;
+  lastY = pos.y;
+  lastTime = Date.now();
+  lastLineWidth = brushSize;
+
   if (currentTool === "brush") draw(e);
 }
 
@@ -215,85 +240,38 @@ function stop(e) {
   ctx.beginPath();
 }
 
+// Smooth brush engine
 function draw(e) {
   if (!painting) return;
   if (currentTool !== "brush") return;
 
   const pos = getPos(e);
 
-  ctx.lineWidth = brushSize;
-  ctx.lineCap = "round";
+  const now = Date.now();
+  const dt = now - lastTime;
+  const dist = distance(lastX, lastY, pos.x, pos.y);
+  const velocity = dist / (dt || 1);
+
+  const lineWidth = calculateLineWidth(velocity);
+
   ctx.strokeStyle = erasing ? "#ffffff" : color;
+  ctx.lineCap = "round";
+  ctx.lineWidth = lineWidth;
 
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
+  ctx.moveTo(lastX, lastY);
+
+  // Smooth quadratic curve
+  const midX = (lastX + pos.x) / 2;
+  const midY = (lastY + pos.y) / 2;
+  ctx.quadraticCurveTo(lastX, lastY, midX, midY);
+  ctx.stroke();
+
+  lastX = pos.x;
+  lastY = pos.y;
+  lastTime = now;
+  lastLineWidth = lineWidth;
 }
-
-// Auto-save system(LocalStorage + Backend Sync)
-let autosaveInterval = null;
-let lastSavedImage = null;
-
-// Show saving status
-function showSaving() {
-  const el = document.getElementById("saveStatus");
-  el.textContent = "Saving...";
-  el.classList.remove("hidden");
-}
-
-// Show saved status
-function showSaved() {
-  const el = document.getElementById("saveStatus");
-  el.textContent = "Saved ✔";
-  setTimeout(() => el.classList.add("hidden"), 1200);
-}
-
-// Restore canvas from localStorage if available
-function restoreAutosave() {
-  const saved = localStorage.getItem("autosave_drawing");
-  if (!saved) return;
-
-  const img = new Image();
-  img.src = saved;
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-}
-
-// Save to localStorage AND backend (if changed)
-async function autosave() {
-  const data = canvas.toDataURL();
-
-  // Skip identical frame
-  if (data === lastSavedImage) return;
-
-  showSaving();
-
-  localStorage.setItem("autosave_drawing", data);
-
-  try {
-    await fetch("http://localhost:3000/api/drawings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, imageData: data }),
-    });
-
-    lastSavedImage = data;
-    showSaved();
-  } catch (err) {
-    console.warn("Autosave failed:", err);
-  }
-}
-
-// Start autosaving every 5 seconds
-function startAutosave() {
-  restoreAutosave();
-  autosaveInterval = setInterval(autosave, 5000);
-}
-
-startAutosave();
 
 // Action Buttons
 document.getElementById("clearBtn").addEventListener("click", () => {
@@ -311,7 +289,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     body: JSON.stringify({ userId, imageData }),
   });
 
-  res.status === 201 ? showSaved() : alert("Failed to save drawing");
+  res.status === 201
+    ? alert("Drawing saved!")
+    : alert("Failed to save drawing");
 });
 
 // Donwload drawings
