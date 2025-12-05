@@ -322,3 +322,25 @@ canvas {
 .profile-thumb:hover {
     transform: scale(1.05);
 }
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.user-email {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.hidden {
+    display: none;
+}

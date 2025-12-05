@@ -11,7 +11,18 @@ firebase.auth().onAuthStateChanged(async (user) => {
     return;
   }
 
-  // Fetch fresh token (optional but recommended)
+  // Display user info on screen
+  document.getElementById("userName").textContent = `Welcome ${
+    user.displayName || "User"
+  }`;
+  document.getElementById("userEmail").textContent = user.email || "";
+  document.getElementById("userInfo").classList.remove("hidden");
+
+  if (user.photoURL) {
+    document.getElementById("userAvatar").src = user.photoURL;
+  }
+
+  // Fetch fresh token
   const token = await user.getIdToken(true);
   localStorage.setItem("userToken", token);
 });
