@@ -48,6 +48,14 @@ let painting = false;
 // Default background
 canvas.style.background = "#ffffff";
 
+// Prevent page scroll while touching canvas
+canvas.addEventListener("touchstart", (e) => e.preventDefault(), {
+  passive: false,
+});
+canvas.addEventListener("touchmove", (e) => e.preventDefault(), {
+  passive: false,
+});
+
 // User ID from URL
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
@@ -137,18 +145,40 @@ document.getElementById("modeToggle").addEventListener("click", () => {
 document.getElementById("undoBtn").onclick = undo;
 document.getElementById("redoBtn").onclick = redo;
 
+// Touch support helpers
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+
+  if (e.touches && e.touches.length > 0) {
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top,
+    };
+  }
+
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+  };
+}
+
 // Drawing logic
 canvas.addEventListener("mousedown", start);
 canvas.addEventListener("mouseup", stop);
 canvas.addEventListener("mousemove", draw);
 
+// Touch events
+canvas.addEventListener("touchstart", (e) => start(e));
+canvas.addEventListener("touchend", (e) => stop(e));
+canvas.addEventListener("touchmove", (e) => draw(e));
+
 function start(e) {
   saveState();
   painting = true;
 
-  const rect = canvas.getBoundingClientRect();
-  startX = e.clientX - rect.left;
-  startY = e.clientY - rect.top;
+  const pos = getPos(e);
+  startX = pos.x;
+  startY = pos.y;
 
   if (currentTool === "brush") draw(e);
 }
@@ -157,9 +187,9 @@ function stop(e) {
   if (!painting) return;
   painting = false;
 
-  const rect = canvas.getBoundingClientRect();
-  const endX = e.clientX - rect.left;
-  const endY = e.clientY - rect.top;
+  const pos = getPos(e);
+  const endX = pos.x;
+  const endY = pos.y;
 
   ctx.lineWidth = brushSize;
   ctx.strokeStyle = erasing ? "#ffffff" : color;
@@ -189,18 +219,16 @@ function draw(e) {
   if (!painting) return;
   if (currentTool !== "brush") return;
 
+  const pos = getPos(e);
+
   ctx.lineWidth = brushSize;
   ctx.lineCap = "round";
   ctx.strokeStyle = erasing ? "#ffffff" : color;
 
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  ctx.lineTo(x, y);
+  ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(x, y);
+  ctx.moveTo(pos.x, pos.y);
 }
 
 // Action Buttons

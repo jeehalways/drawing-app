@@ -344,3 +344,93 @@ canvas {
 .hidden {
     display: none;
 }
+
+/* -----------------------------
+   Mobile responsive layout
+------------------------------ */
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #userInfo {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .canvas-controls {
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px;
+    }
+
+    .canvas-controls label {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    #colorPalette,
+    #shapeTools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .swatch {
+        width: 24px;
+        height: 24px;
+    }
+
+    .tool-btn,
+    #eraserBtn,
+    #undoBtn,
+    #redoBtn,
+    #clearBtn,
+    #saveBtn,
+    #downloadBtn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    /* Canvas auto-resizes on mobile */
+    #canvas {
+        width: 100%;
+        height: auto;
+        border: 1px solid #ccc;
+        touch-action: none;
+        /* Prevent iOS dragging */
+    }
+}
+
+/* Even smaller screens (phones < 480px wide) */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 20px;
+    }
+
+    .canvas-controls {
+        gap: 8px;
+    }
+
+    .tool-btn,
+    #eraserBtn {
+        padding: 6px 10px;
+    }
+
+    .swatch {
+        width: 20px;
+        height: 20px;
+    }
+}
