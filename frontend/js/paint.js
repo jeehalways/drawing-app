@@ -3,6 +3,19 @@ firebase.initializeApp(firebaseConfig);
 
 console.log("paint.js loaded");
 
+// 2. PROTECT THIS PAGE — Require valid Firebase login
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (!user) {
+    // No login → redirect to home
+    window.location.href = "home.html";
+    return;
+  }
+
+  // Fetch fresh token (optional but recommended)
+  const token = await user.getIdToken(true);
+  localStorage.setItem("userToken", token);
+});
+
 // Simple in-memory state
 let brushSize = 5;
 let color = "#000000";

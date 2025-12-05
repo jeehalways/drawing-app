@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import prisma from "../config/db";
+import admin from "../config/firebase";
 
 const router = Router();
 
@@ -57,6 +58,42 @@ router.post("/", async (req, res) => {
     }
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// POST /api/register/firebase
+router.post("/firebase", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) return res.status(400).json({ message: "Missing token" });
+
+    // 1. Verify Firebase ID token
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    const email = decoded.email || undefined;
+    const name = decoded.name || "Unnamed User";
+
+    // 2. Find or create user in Prisma
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          birthday: null, // Firebase users may not provide birthday
+        },
+      });
+    }
+
+    // Return userId so frontend can redirect to paint screen
+    res.json({ userId: user.id });
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: "Invalid Firebase token" });
   }
 });
 
