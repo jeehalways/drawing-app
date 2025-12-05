@@ -231,6 +231,70 @@ function draw(e) {
   ctx.moveTo(pos.x, pos.y);
 }
 
+// Auto-save system(LocalStorage + Backend Sync)
+let autosaveInterval = null;
+let lastSavedImage = null;
+
+// Show saving status
+function showSaving() {
+  const el = document.getElementById("saveStatus");
+  el.textContent = "Saving...";
+  el.classList.remove("hidden");
+}
+
+// Show saved status
+function showSaved() {
+  const el = document.getElementById("saveStatus");
+  el.textContent = "Saved ✔";
+  setTimeout(() => el.classList.add("hidden"), 1200);
+}
+
+// Restore canvas from localStorage if available
+function restoreAutosave() {
+  const saved = localStorage.getItem("autosave_drawing");
+  if (!saved) return;
+
+  const img = new Image();
+  img.src = saved;
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+}
+
+// Save to localStorage AND backend (if changed)
+async function autosave() {
+  const data = canvas.toDataURL();
+
+  // Skip identical frame
+  if (data === lastSavedImage) return;
+
+  showSaving();
+
+  localStorage.setItem("autosave_drawing", data);
+
+  try {
+    await fetch("http://localhost:3000/api/drawings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, imageData: data }),
+    });
+
+    lastSavedImage = data;
+    showSaved();
+  } catch (err) {
+    console.warn("Autosave failed:", err);
+  }
+}
+
+// Start autosaving every 5 seconds
+function startAutosave() {
+  restoreAutosave();
+  autosaveInterval = setInterval(autosave, 5000);
+}
+
+startAutosave();
+
 // Action Buttons
 document.getElementById("clearBtn").addEventListener("click", () => {
   saveState();
@@ -247,9 +311,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     body: JSON.stringify({ userId, imageData }),
   });
 
-  res.status === 201
-    ? alert("Drawing saved!")
-    : alert("Failed to save drawing");
+  res.status === 201 ? showSaved() : alert("Failed to save drawing");
 });
 
 // Donwload drawings
