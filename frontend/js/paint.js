@@ -53,9 +53,6 @@ let painting = false;
 // Default background
 canvas.style.background = "#ffffff";
 
-// Brush preview element
-const brushPreview = document.getElementById("brushPreview");
-
 // Prevent page scroll while touching canvas
 canvas.addEventListener("touchstart", (e) => e.preventDefault(), {
   passive: false,
@@ -213,43 +210,14 @@ function getPos(e) {
   };
 }
 
-// Brush preview helper
-function updateBrushPreview(e) {
-  const pos = getPos(e);
-  const size = brushSize * 2;
-
-  brushPreview.style.width = size + "px";
-  brushPreview.style.height = size + "px";
-  brushPreview.style.left = pos.x - size / 2 + "px";
-  brushPreview.style.top = pos.y - size / 2 + "px";
-
-  brushPreview.style.borderColor = erasing ? "#ffffff" : color;
-
-  if (brushType === "watercolor") {
-    brushPreview.style.opacity = "0.4";
-  } else if (brushType === "marker") {
-    brushPreview.style.opacity = "0.7";
-  } else if (brushType === "pencil") {
-    brushPreview.style.opacity = "0.6";
-  } else {
-    brushPreview.style.opacity = "1";
-  }
-
-  brushPreview.classList.remove("hidden");
-}
-
 // Drawing logic (using Pointer Events for pressure + touch + mouse)
 canvas.addEventListener("pointerdown", start);
 canvas.addEventListener("pointerup", stop);
 canvas.addEventListener("pointermove", (e) => {
-  updateBrushPreview(e);
-  draw(e);
-});
-canvas.addEventListener("pointerleave", () => {
-  brushPreview.classList.add("hidden");
+  draw(e); // brush preview removed
 });
 
-// Touch events keep behaviour consistent (for older devices)
+// Touch events keep behaviour consistent
 canvas.addEventListener("touchstart", (e) => start(e));
 canvas.addEventListener("touchend", (e) => stop(e));
 canvas.addEventListener("touchmove", (e) => draw(e));
@@ -340,7 +308,7 @@ function sprayAt(pos) {
   }
 }
 
-// Smudge tool (simple blur in a local area)
+// Smudge tool
 function smudgeAt(pos) {
   const size = brushSize * 3;
   const half = size / 2;
@@ -354,7 +322,7 @@ function smudgeAt(pos) {
   const imgData = ctx.getImageData(sx, sy, w, h);
   const data = imgData.data;
 
-  // very simple box blur
+  // simple blur
   for (let y = 1; y < h - 1; y++) {
     for (let x = 1; x < w - 1; x++) {
       const idx = (y * w + x) * 4;
@@ -388,7 +356,7 @@ function smudgeAt(pos) {
   ctx.putImageData(imgData, sx, sy);
 }
 
-// Bucket fill (simple flood fill)
+// Bucket fill
 function bucketFill(x, y) {
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
