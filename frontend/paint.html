@@ -21,19 +21,78 @@
       </div>
     </div>
 
+    <!-- Drawing Controls -->
     <div class="canvas-controls">
+      <!-- Brush size -->
       <label>
         Brush Size:
         <input type="range" id="brushSize" min="1" max="30" value="5" />
       </label>
 
+      <!-- Color picker -->
       <label>
         Color:
         <input type="color" id="colorPicker" value="#000000" />
       </label>
 
+      <!-- Background color -->
+      <label>
+        Background:
+        <input type="color" id="bgColorPicker" value="#ffffff" />
+      </label>
+
+      <!-- Quick palette -->
+      <div id="colorPalette">
+        <button
+          class="swatch"
+          data-color="#000000"
+          style="background: #000000"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#ff0000"
+          style="background: #ff0000"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#00ff00"
+          style="background: #00ff00"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#0000ff"
+          style="background: #0000ff"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#ffff00"
+          style="background: #ffff00"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#ff00ff"
+          style="background: #ff00ff"
+        ></button>
+        <button
+          class="swatch"
+          data-color="#00ffff"
+          style="background: #00ffff"
+        ></button>
+      </div>
+
+      <!-- Tools -->
+      <div id="shapeTools">
+        <button id="toolBrush" class="tool-btn active">Brush</button>
+        <button id="toolLine" class="tool-btn">Line</button>
+        <button id="toolRect" class="tool-btn">Rectangle</button>
+        <button id="toolCircle" class="tool-btn">Circle</button>
+      </div>
+
       <button id="eraserBtn" class="eraser-btn">Eraser</button>
 
+      <!-- Drawing actions -->
+      <button id="undoBtn">Undo</button>
+      <button id="redoBtn">Redo</button>
       <button id="clearBtn">Clear</button>
       <button id="saveBtn">Save Drawing</button>
       <button id="downloadBtn">Download</button>
@@ -41,14 +100,13 @@
 
     <canvas id="canvas" width="600" height="400"></canvas>
 
-    <!-- FIREBASE LOAD ORDER (required for logout) -->
+    <!-- FIREBASE LOAD ORDER -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-    <!-- Your firebase config -->
+    <!-- Firebase config -->
     <script src="js/firebaseConfig.js"></script>
-    <!-- Auth gate -->
-    <script src="js/paint-auth.js"></script>
+
     <!-- Drawing logic -->
     <script src="js/paint.js"></script>
   </body>

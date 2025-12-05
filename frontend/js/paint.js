@@ -3,7 +3,7 @@ firebase.initializeApp(firebaseConfig);
 
 console.log("paint.js loaded");
 
-// 2. PROTECT THIS PAGE — Require valid Firebase login
+//  AUTH PROTECTION + USER INFO
 firebase.auth().onAuthStateChanged(async (user) => {
   if (!user) {
     // No login → redirect to home
@@ -11,7 +11,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     return;
   }
 
-  // Display user info on screen
+  // Display user info
   document.getElementById("userName").textContent = `Welcome ${
     user.displayName || "User"
   }`;
@@ -27,19 +27,76 @@ firebase.auth().onAuthStateChanged(async (user) => {
   localStorage.setItem("userToken", token);
 });
 
-// Simple in-memory state
+// Basic State
 let brushSize = 5;
 let color = "#000000";
 let erasing = false;
+let currentTool = "brush";
 
-//  Canvas Setup
+// Shapes
+let startX, startY;
+
+// Undo/Redo
+let history = [];
+let redoStack = [];
+
+// Canvas setup
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let painting = false;
 
+// Default background
+canvas.style.background = "#ffffff";
+
 // User ID from URL
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
+
+// Helper functions
+function saveState() {
+  history.push(canvas.toDataURL());
+  if (history.length > 50) history.shift();
+}
+
+function restoreState(imgData) {
+  const img = new Image();
+  img.src = imgData;
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+}
+
+function undo() {
+  if (history.length === 0) return;
+  redoStack.push(canvas.toDataURL());
+  const last = history.pop();
+  restoreState(last);
+}
+
+function redo() {
+  if (redoStack.length === 0) return;
+  history.push(canvas.toDataURL());
+  const img = redoStack.pop();
+  restoreState(img);
+}
+
+// Tool selection
+function selectTool(tool) {
+  currentTool = tool;
+
+  document
+    .querySelectorAll(".tool-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+  document
+    .getElementById("tool" + tool.charAt(0).toUpperCase() + tool.slice(1))
+    .classList.add("active");
+}
+
+document.getElementById("toolBrush").onclick = () => selectTool("brush");
+document.getElementById("toolLine").onclick = () => selectTool("line");
+document.getElementById("toolRect").onclick = () => selectTool("rect");
+document.getElementById("toolCircle").onclick = () => selectTool("circle");
 
 // UI events
 document.getElementById("brushSize").addEventListener("input", (e) => {
@@ -52,14 +109,33 @@ document.getElementById("colorPicker").addEventListener("input", (e) => {
   document.getElementById("eraserBtn").classList.remove("active");
 });
 
+document.getElementById("eraserBtn").addEventListener("click", () => {
+  erasing = !erasing;
+  currentTool = "brush"; // eraser uses brush mechanics
+  document.getElementById("eraserBtn").classList.toggle("active", erasing);
+});
+
+document.querySelectorAll(".swatch").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    color = btn.dataset.color;
+    erasing = false;
+    document.getElementById("eraserBtn").classList.remove("active");
+    document.getElementById("colorPicker").value = color;
+  });
+});
+
+// Background color picker
+document.getElementById("bgColorPicker").addEventListener("input", (e) => {
+  canvas.style.background = e.target.value;
+});
+
 document.getElementById("modeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
 });
 
-document.getElementById("eraserBtn").addEventListener("click", () => {
-  erasing = !erasing;
-  document.getElementById("eraserBtn").classList.toggle("active", erasing);
-});
+// Undo / Redo
+document.getElementById("undoBtn").onclick = undo;
+document.getElementById("redoBtn").onclick = redo;
 
 // Drawing logic
 canvas.addEventListener("mousedown", start);
@@ -67,17 +143,51 @@ canvas.addEventListener("mouseup", stop);
 canvas.addEventListener("mousemove", draw);
 
 function start(e) {
+  saveState();
   painting = true;
-  draw(e);
+
+  const rect = canvas.getBoundingClientRect();
+  startX = e.clientX - rect.left;
+  startY = e.clientY - rect.top;
+
+  if (currentTool === "brush") draw(e);
 }
 
-function stop() {
+function stop(e) {
+  if (!painting) return;
   painting = false;
+
+  const rect = canvas.getBoundingClientRect();
+  const endX = e.clientX - rect.left;
+  const endY = e.clientY - rect.top;
+
+  ctx.lineWidth = brushSize;
+  ctx.strokeStyle = erasing ? "#ffffff" : color;
+
+  if (currentTool === "line") {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+  }
+
+  if (currentTool === "rect") {
+    ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+  }
+
+  if (currentTool === "circle") {
+    const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+    ctx.beginPath();
+    ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   ctx.beginPath();
 }
 
 function draw(e) {
   if (!painting) return;
+  if (currentTool !== "brush") return;
 
   ctx.lineWidth = brushSize;
   ctx.lineCap = "round";
@@ -93,8 +203,9 @@ function draw(e) {
   ctx.moveTo(x, y);
 }
 
-// Clear canvas
+// Action Buttons
 document.getElementById("clearBtn").addEventListener("click", () => {
+  saveState();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
@@ -108,11 +219,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     body: JSON.stringify({ userId, imageData }),
   });
 
-  if (res.status === 201) {
-    alert("Drawing saved!");
-  } else {
-    alert("Failed to save drawing");
-  }
+  res.status === 201
+    ? alert("Drawing saved!")
+    : alert("Failed to save drawing");
 });
 
 // Donwload drawings
@@ -124,11 +233,11 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   a.click();
 });
 
-// Logout button
+// Logout
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   try {
-    await firebase.auth().signOut(); // logout from google/github/firebase
-    window.location.href = "home.html"; // redirect to login/QR page
+    await firebase.auth().signOut();
+    window.location.href = "home.html";
   } catch (err) {
     alert("Logout failed: " + err.message);
   }
