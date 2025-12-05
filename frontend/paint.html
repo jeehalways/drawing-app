@@ -37,48 +37,48 @@
         <input type="color" id="colorPicker" value="#000000" />
       </label>
 
-      <!-- Background color -->
+      <!-- Background -->
       <label>
         Background:
         <input type="color" id="bgColorPicker" value="#ffffff" />
       </label>
 
-      <!-- Quick palette -->
+      <!-- Quick Palette -->
       <div id="colorPalette">
         <button
           class="swatch"
           data-color="#000000"
-          style="background: #000000"
+          style="background: #000"
         ></button>
         <button
           class="swatch"
           data-color="#ff0000"
-          style="background: #ff0000"
+          style="background: #f00"
         ></button>
         <button
           class="swatch"
           data-color="#00ff00"
-          style="background: #00ff00"
+          style="background: #0f0"
         ></button>
         <button
           class="swatch"
           data-color="#0000ff"
-          style="background: #0000ff"
+          style="background: #00f"
         ></button>
         <button
           class="swatch"
           data-color="#ffff00"
-          style="background: #ffff00"
+          style="background: #ff0"
         ></button>
         <button
           class="swatch"
           data-color="#ff00ff"
-          style="background: #ff00ff"
+          style="background: #f0f"
         ></button>
         <button
           class="swatch"
           data-color="#00ffff"
-          style="background: #00ffff"
+          style="background: #0ff"
         ></button>
       </div>
 
@@ -88,11 +88,24 @@
         <button id="toolLine" class="tool-btn">Line</button>
         <button id="toolRect" class="tool-btn">Rectangle</button>
         <button id="toolCircle" class="tool-btn">Circle</button>
+
+        <!-- Extra tools -->
+        <button id="toolSpray" class="tool-btn">Spray</button>
+        <button id="toolSmudge" class="tool-btn">Smudge</button>
+        <button id="toolBucket" class="tool-btn">Bucket</button>
+      </div>
+
+      <!-- Brush Texture Buttons -->
+      <div id="brushTextures">
+        <button id="brushSmooth" class="tool-btn">Smooth</button>
+        <button id="brushPencil" class="tool-btn">Pencil</button>
+        <button id="brushMarker" class="tool-btn">Marker</button>
+        <button id="brushWatercolor" class="tool-btn">Watercolor</button>
       </div>
 
       <button id="eraserBtn" class="eraser-btn">Eraser</button>
 
-      <!-- Drawing actions -->
+      <!-- Actions -->
       <button id="undoBtn">Undo</button>
       <button id="redoBtn">Redo</button>
       <button id="clearBtn">Clear</button>
@@ -100,7 +113,11 @@
       <button id="downloadBtn">Download</button>
     </div>
 
+    <!-- Layer system: single visible canvas, but ready for background/effects -->
     <canvas id="canvas" width="600" height="400"></canvas>
+
+    <!-- Brush preview overlay -->
+    <div id="brushPreview" class="brush-preview hidden"></div>
 
     <!-- FIREBASE LOAD ORDER -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>

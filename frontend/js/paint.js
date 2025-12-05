@@ -32,6 +32,11 @@ let brushSize = 5;
 let color = "#000000";
 let erasing = false;
 let currentTool = "brush";
+let brushType = "smooth"; // smooth, pencil, marker, watercolor
+
+// Extra tools state
+let currentPressure = 0.5; // 0–1
+let isPointerDown = false;
 
 // Shapes
 let startX, startY;
@@ -47,6 +52,9 @@ let painting = false;
 
 // Default background
 canvas.style.background = "#ffffff";
+
+// Brush preview element
+const brushPreview = document.getElementById("brushPreview");
 
 // Prevent page scroll while touching canvas
 canvas.addEventListener("touchstart", (e) => e.preventDefault(), {
@@ -66,18 +74,26 @@ let lastY = 0;
 let lastTime = 0;
 let lastLineWidth = brushSize;
 
+// Textured brush noise generator
+function noise() {
+  return (Math.random() - 0.5) * 0.4; // subtle jitter
+}
+
 function distance(x1, y1, x2, y2) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
-function calculateLineWidth(velocity) {
+function calculateLineWidth(velocity, pressure = 0.5) {
   const minWidth = brushSize * 0.4;
   const maxWidth = brushSize * 1.4;
 
   const v = Math.min(velocity, 3);
   const width = maxWidth - (v / 3) * (maxWidth - minWidth);
 
-  return lastLineWidth * 0.7 + width * 0.3;
+  // apply simple pressure mapping (Apple Pencil / pens)
+  const pressureFactor = 0.3 + pressure * 0.7;
+
+  return (lastLineWidth * 0.7 + width * 0.3) * pressureFactor;
 }
 
 // Helper functions
@@ -116,15 +132,29 @@ function selectTool(tool) {
   document
     .querySelectorAll(".tool-btn")
     .forEach((btn) => btn.classList.remove("active"));
-  document
-    .getElementById("tool" + tool.charAt(0).toUpperCase() + tool.slice(1))
-    .classList.add("active");
+  const toolButton = document.getElementById(
+    "tool" + tool.charAt(0).toUpperCase() + tool.slice(1)
+  );
+  if (toolButton) {
+    toolButton.classList.add("active");
+  }
 }
 
 document.getElementById("toolBrush").onclick = () => selectTool("brush");
 document.getElementById("toolLine").onclick = () => selectTool("line");
 document.getElementById("toolRect").onclick = () => selectTool("rect");
 document.getElementById("toolCircle").onclick = () => selectTool("circle");
+// tools
+document.getElementById("toolSpray").onclick = () => selectTool("spray");
+document.getElementById("toolSmudge").onclick = () => selectTool("smudge");
+document.getElementById("toolBucket").onclick = () => selectTool("bucket");
+
+// Brush Texture Buttons
+document.getElementById("brushSmooth").onclick = () => (brushType = "smooth");
+document.getElementById("brushPencil").onclick = () => (brushType = "pencil");
+document.getElementById("brushMarker").onclick = () => (brushType = "marker");
+document.getElementById("brushWatercolor").onclick = () =>
+  (brushType = "watercolor");
 
 // UI events
 document.getElementById("brushSize").addEventListener("input", (e) => {
@@ -176,18 +206,50 @@ function getPos(e) {
     };
   }
 
+  // Pointer / mouse
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
+    x: (e.clientX ?? 0) - rect.left,
+    y: (e.clientY ?? 0) - rect.top,
   };
 }
 
-// Drawing logic
-canvas.addEventListener("mousedown", start);
-canvas.addEventListener("mouseup", stop);
-canvas.addEventListener("mousemove", draw);
+// Brush preview helper
+function updateBrushPreview(e) {
+  const pos = getPos(e);
+  const size = brushSize * 2;
 
-// Touch events
+  brushPreview.style.width = size + "px";
+  brushPreview.style.height = size + "px";
+  brushPreview.style.left = pos.x - size / 2 + "px";
+  brushPreview.style.top = pos.y - size / 2 + "px";
+
+  brushPreview.style.borderColor = erasing ? "#ffffff" : color;
+
+  if (brushType === "watercolor") {
+    brushPreview.style.opacity = "0.4";
+  } else if (brushType === "marker") {
+    brushPreview.style.opacity = "0.7";
+  } else if (brushType === "pencil") {
+    brushPreview.style.opacity = "0.6";
+  } else {
+    brushPreview.style.opacity = "1";
+  }
+
+  brushPreview.classList.remove("hidden");
+}
+
+// Drawing logic (using Pointer Events for pressure + touch + mouse)
+canvas.addEventListener("pointerdown", start);
+canvas.addEventListener("pointerup", stop);
+canvas.addEventListener("pointermove", (e) => {
+  updateBrushPreview(e);
+  draw(e);
+});
+canvas.addEventListener("pointerleave", () => {
+  brushPreview.classList.add("hidden");
+});
+
+// Touch events keep behaviour consistent (for older devices)
 canvas.addEventListener("touchstart", (e) => start(e));
 canvas.addEventListener("touchend", (e) => stop(e));
 canvas.addEventListener("touchmove", (e) => draw(e));
@@ -195,6 +257,14 @@ canvas.addEventListener("touchmove", (e) => draw(e));
 function start(e) {
   saveState();
   painting = true;
+  isPointerDown = true;
+
+  // Pressure support
+  if (e.pointerType && typeof e.pressure === "number" && e.pressure > 0) {
+    currentPressure = e.pressure;
+  } else {
+    currentPressure = 0.5;
+  }
 
   const pos = getPos(e);
   startX = pos.x;
@@ -205,12 +275,27 @@ function start(e) {
   lastTime = Date.now();
   lastLineWidth = brushSize;
 
-  if (currentTool === "brush") draw(e);
+  // Bucket fills on click
+  if (currentTool === "bucket") {
+    bucketFill(pos.x, pos.y);
+    painting = false;
+    isPointerDown = false;
+    return;
+  }
+
+  if (
+    currentTool === "brush" ||
+    currentTool === "spray" ||
+    currentTool === "smudge"
+  ) {
+    draw(e);
+  }
 }
 
 function stop(e) {
   if (!painting) return;
   painting = false;
+  isPointerDown = false;
 
   const pos = getPos(e);
   const endX = pos.x;
@@ -240,22 +325,197 @@ function stop(e) {
   ctx.beginPath();
 }
 
-// Smooth brush engine
+// Spray tool
+function sprayAt(pos) {
+  const density = brushSize * 2;
+  ctx.fillStyle = erasing ? "#ffffff" : color;
+
+  for (let i = 0; i < density; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * brushSize;
+    const x = pos.x + Math.cos(angle) * radius;
+    const y = pos.y + Math.sin(angle) * radius;
+
+    ctx.fillRect(x, y, 1, 1);
+  }
+}
+
+// Smudge tool (simple blur in a local area)
+function smudgeAt(pos) {
+  const size = brushSize * 3;
+  const half = size / 2;
+  const sx = Math.max(0, pos.x - half);
+  const sy = Math.max(0, pos.y - half);
+  const w = Math.min(size, canvas.width - sx);
+  const h = Math.min(size, canvas.height - sy);
+
+  if (w <= 0 || h <= 0) return;
+
+  const imgData = ctx.getImageData(sx, sy, w, h);
+  const data = imgData.data;
+
+  // very simple box blur
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const idx = (y * w + x) * 4;
+
+      const neighbors = [
+        idx,
+        ((y - 1) * w + x) * 4,
+        ((y + 1) * w + x) * 4,
+        (y * w + (x - 1)) * 4,
+        (y * w + (x + 1)) * 4,
+      ];
+
+      let r = 0,
+        g = 0,
+        b = 0,
+        a = 0;
+      neighbors.forEach((ni) => {
+        r += data[ni];
+        g += data[ni + 1];
+        b += data[ni + 2];
+        a += data[ni + 3];
+      });
+
+      data[idx] = r / neighbors.length;
+      data[idx + 1] = g / neighbors.length;
+      data[idx + 2] = b / neighbors.length;
+      data[idx + 3] = a / neighbors.length;
+    }
+  }
+
+  ctx.putImageData(imgData, sx, sy);
+}
+
+// Bucket fill (simple flood fill)
+function bucketFill(x, y) {
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  const targetPos = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+  const targetColor = [
+    data[targetPos],
+    data[targetPos + 1],
+    data[targetPos + 2],
+    data[targetPos + 3],
+  ];
+
+  const fillColor = hexToRgba(erasing ? "#ffffff" : color);
+
+  if (
+    targetColor[0] === fillColor[0] &&
+    targetColor[1] === fillColor[1] &&
+    targetColor[2] === fillColor[2] &&
+    targetColor[3] === fillColor[3]
+  ) {
+    return;
+  }
+
+  const stack = [[Math.floor(x), Math.floor(y)]];
+
+  function matchTarget(px, py) {
+    if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height)
+      return false;
+    const idx = (py * canvas.width + px) * 4;
+    return (
+      data[idx] === targetColor[0] &&
+      data[idx + 1] === targetColor[1] &&
+      data[idx + 2] === targetColor[2] &&
+      data[idx + 3] === targetColor[3]
+    );
+  }
+
+  function colorPixel(px, py) {
+    const idx = (py * canvas.width + px) * 4;
+    data[idx] = fillColor[0];
+    data[idx + 1] = fillColor[1];
+    data[idx + 2] = fillColor[2];
+    data[idx + 3] = fillColor[3];
+  }
+
+  while (stack.length > 0) {
+    const [cx, cy] = stack.pop();
+    if (!matchTarget(cx, cy)) continue;
+
+    colorPixel(cx, cy);
+
+    stack.push([cx + 1, cy]);
+    stack.push([cx - 1, cy]);
+    stack.push([cx, cy + 1]);
+    stack.push([cx, cy - 1]);
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// hex to [r,g,b,a]
+function hexToRgba(hex) {
+  const sanitized = hex.replace("#", "");
+  let r, g, b;
+  if (sanitized.length === 3) {
+    r = parseInt(sanitized[0] + sanitized[0], 16);
+    g = parseInt(sanitized[1] + sanitized[1], 16);
+    b = parseInt(sanitized[2] + sanitized[2], 16);
+  } else {
+    r = parseInt(sanitized.slice(0, 2), 16);
+    g = parseInt(sanitized.slice(2, 4), 16);
+    b = parseInt(sanitized.slice(4, 6), 16);
+  }
+  return [r, g, b, 255];
+}
+
+// Smooth + Textured Brush + Extra tools
 function draw(e) {
   if (!painting) return;
-  if (currentTool !== "brush") return;
+
+  // update pressure if available
+  if (e.pointerType && typeof e.pressure === "number" && e.pressure > 0) {
+    currentPressure = e.pressure;
+  }
 
   const pos = getPos(e);
+
+  if (currentTool === "spray") {
+    sprayAt(pos);
+    return;
+  }
+
+  if (currentTool === "smudge") {
+    smudgeAt(pos);
+    return;
+  }
+
+  if (currentTool !== "brush") return;
 
   const now = Date.now();
   const dt = now - lastTime;
   const dist = distance(lastX, lastY, pos.x, pos.y);
   const velocity = dist / (dt || 1);
 
-  const lineWidth = calculateLineWidth(velocity);
+  let lineWidth = calculateLineWidth(velocity, currentPressure);
 
   ctx.strokeStyle = erasing ? "#ffffff" : color;
   ctx.lineCap = "round";
+
+  // Apply brush textures
+  if (!erasing) {
+    if (brushType === "pencil") {
+      lineWidth *= 0.6;
+      ctx.globalAlpha = 0.5 + noise();
+      ctx.strokeStyle = color;
+    }
+
+    if (brushType === "marker") {
+      ctx.globalAlpha = 0.7;
+    }
+
+    if (brushType === "watercolor") {
+      ctx.globalAlpha = 0.2 + Math.random() * 0.1;
+      lineWidth *= 1.8;
+    }
+  }
+
   ctx.lineWidth = lineWidth;
 
   ctx.beginPath();
@@ -271,6 +531,8 @@ function draw(e) {
   lastY = pos.y;
   lastTime = now;
   lastLineWidth = lineWidth;
+
+  ctx.globalAlpha = 1.0; // reset
 }
 
 // Action Buttons
