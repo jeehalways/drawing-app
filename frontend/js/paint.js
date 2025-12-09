@@ -4,27 +4,42 @@ firebase.initializeApp(firebaseConfig);
 console.log("paint.js loaded");
 
 //  AUTH PROTECTION + USER INFO
+// User ID from URL (shared by manual + Firebase users)
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("userId");
+
+//  AUTH PROTECTION + USER INFO
 firebase.auth().onAuthStateChanged(async (user) => {
-  if (!user) {
-    // No login → redirect to home
+  // CASE 1: no Firebase user AND no userId in URL → not allowed here
+  if (!user && !userId) {
     window.location.href = "home.html";
     return;
   }
 
-  // Display user info
-  document.getElementById("userName").textContent = `Welcome ${
-    user.displayName || "User"
-  }`;
-  document.getElementById("userEmail").textContent = user.email || "";
-  document.getElementById("userInfo").classList.remove("hidden");
+  // CASE 2: Firebase user (Google/GitHub) → show full profile
+  if (user) {
+    document.getElementById("userName").textContent = `Welcome ${
+      user.displayName || "User"
+    }`;
+    document.getElementById("userEmail").textContent = user.email || "";
+    document.getElementById("userInfo").classList.remove("hidden");
 
-  if (user.photoURL) {
-    document.getElementById("userAvatar").src = user.photoURL;
+    if (user.photoURL) {
+      document.getElementById("userAvatar").src = user.photoURL;
+    }
+
+    const token = await user.getIdToken(true);
+    localStorage.setItem("userToken", token);
+    return;
   }
 
-  // Fetch fresh token
-  const token = await user.getIdToken(true);
-  localStorage.setItem("userToken", token);
+  // CASE 3: manual user (no Firebase user, but userId present in URL)
+  if (!user && userId) {
+    console.log("Manual user detected → no Firebase profile available.");
+    document.getElementById("userName").textContent = "Welcome!";
+    document.getElementById("userEmail").textContent = "";
+    document.getElementById("userInfo").classList.remove("hidden");
+  }
 });
 
 // Basic State
@@ -60,10 +75,6 @@ canvas.addEventListener("touchstart", (e) => e.preventDefault(), {
 canvas.addEventListener("touchmove", (e) => e.preventDefault(), {
   passive: false,
 });
-
-// User ID from URL
-const params = new URLSearchParams(window.location.search);
-const userId = params.get("userId");
 
 //  Smooth Brush Engine Helpers
 let lastX = 0;

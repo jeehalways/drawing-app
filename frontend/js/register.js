@@ -13,23 +13,34 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
     return;
   }
 
-  // Build request body
-  const body = { name, birthday };
+  try {
+    // Send manual registration to backend
+    const res = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, birthday }),
+    });
 
-  const res = await fetch("http://localhost:3000/api/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error("Registration error:", err);
+      alert("Registration failed");
+      return;
+    }
 
-  if (res.status === 201) {
+    // Newly created Prisma user
     const newUser = await res.json();
 
-    // redirect to paint.html
+    if (!newUser.id) {
+      console.error("No user ID returned:", newUser);
+      alert("Registration failed: invalid response from server.");
+      return;
+    }
+
+    // Redirect to paint page WITHOUT requiring Firebase login
     window.location.href = `paint.html?userId=${newUser.id}`;
-  } else if (res.status === 400) {
-    alert("Invalid data — check name and birthday");
-  } else {
-    alert("Registration failed");
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Could not connect to the server.");
   }
 });

@@ -68,13 +68,13 @@ router.post("/firebase", async (req, res) => {
 
     if (!token) return res.status(400).json({ message: "Missing token" });
 
-    // 1. Verify Firebase ID token
+    // Verify Firebase ID token
     const decoded = await admin.auth().verifyIdToken(token);
 
     const email = decoded.email || undefined;
     const name = decoded.name || "Unnamed User";
 
-    // 2. Find or create user in Prisma
+    // Find or create user in Prisma
     let user = await prisma.user.findUnique({
       where: { email },
     });
@@ -90,6 +90,42 @@ router.post("/firebase", async (req, res) => {
     }
 
     // Return userId so frontend can redirect to paint screen
+    res.json({ userId: user.id });
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: "Invalid Firebase token" });
+  }
+});
+
+router.post("/firebase", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Missing token" });
+
+    // Verify Firebase ID token
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    const firebaseId = decoded.uid;
+    const email = decoded.email || null;
+    const name = decoded.name || "Unnamed User";
+
+    // Find user by firebaseId
+    let user = await prisma.user.findUnique({
+      where: { firebaseId: decoded.uid },
+    });
+
+    // Create user if not found
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          firebaseId: decoded.uid,
+          email,
+          name,
+          birthday: null,
+        },
+      });
+    }
+
     res.json({ userId: user.id });
   } catch (err) {
     console.error(err);
