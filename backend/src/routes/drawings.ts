@@ -61,4 +61,27 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const drawings = await prisma.drawing.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    res.json(drawings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Could not load drawings" });
+  }
+});
+
 export default router;
