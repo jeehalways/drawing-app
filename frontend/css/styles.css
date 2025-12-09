@@ -78,6 +78,46 @@ button:hover {
     transform: scale(1.03);
 }
 
+.bottom-right-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    font-size: 16px;
+    z-index: 999;
+    border-radius: 8px;
+}
+
+.login-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.login-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.auth-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    /* spacing between buttons */
+    flex-wrap: wrap;
+    /* allows wrapping on smaller screens */
+    margin: 20px 0;
+}
+
+/* make monochrome SVGs turn white automatically */
+.invert-icon {
+    filter: invert(1);
+}
+
 /* CANVAS PAGE */
 
 /* NEW → Controls as a centered toolbar card */

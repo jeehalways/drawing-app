@@ -27,10 +27,33 @@
     <h2>Or choose a login option</h2>
 
     <div class="auth-buttons">
-      <button id="googleBtn">Continue with Google</button>
-      <button id="githubBtn">Continue with GitHub</button>
-      <button id="manualBtn">Register Manually</button>
+      <button id="googleBtn" class="login-btn">
+        <img
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          class="login-icon"
+        />
+        Continue with Google
+      </button>
+
+      <button id="githubBtn" class="login-btn">
+        <img
+          src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/github.svg
+"
+          class="login-icon"
+        />
+        Continue with GitHub
+      </button>
+
+      <button id="manualBtn" class="login-btn manual-btn">
+        <img
+          src="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/solid/user.svg"
+          class="login-icon invert-icon"
+        />
+        Register Manually
+      </button>
     </div>
+
+    <button id="adminBtn" class="admin-btn bottom-right-btn">Admin</button>
 
     <script src="js/firebaseConfig.js"></script>
     <script src="js/home.js"></script>

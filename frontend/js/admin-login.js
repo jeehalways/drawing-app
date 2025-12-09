@@ -54,3 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// Back to Home button
+document.getElementById("backHomeBtn").addEventListener("click", () => {
+  window.location.href = "home.html";
+});

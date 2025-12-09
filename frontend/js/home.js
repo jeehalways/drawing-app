@@ -75,3 +75,8 @@ async function sendTokenToBackend(token) {
     alert("Connection error: " + err.message);
   }
 }
+
+// Admin login button
+document.getElementById("adminBtn").addEventListener("click", () => {
+  window.location.href = "admin-login.html";
+});
