@@ -41,13 +41,24 @@ firebase.auth().onAuthStateChanged(async (user) => {
       const res = await fetch(`http://localhost:3000/api/register/${userId}`);
       const manualUser = await res.json();
 
+      // Display name
       document.getElementById("userName").textContent = manualUser.name
         ? `Welcome, ${manualUser.name}!`
         : "Welcome!";
+
+      // Manual users have no email
       document.getElementById("userEmail").textContent = "";
+
+      // Display manual avatar
+      if (manualUser.avatar) {
+        document.getElementById("userAvatar").src = manualUser.avatar;
+        document.getElementById("userAvatar").classList.remove("hidden");
+      }
+
       document.getElementById("userInfo").classList.remove("hidden");
     } catch (err) {
       console.error("Could not load manual user:", err);
+
       document.getElementById("userName").textContent = "Welcome!";
       document.getElementById("userInfo").classList.remove("hidden");
     }

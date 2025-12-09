@@ -13,6 +13,7 @@ model User {
   email      String?   @unique
   name       String?
   birthday   DateTime?
+  avatar     String?
   createdAt  DateTime  @default(now())
   drawings   Drawing[]
 }

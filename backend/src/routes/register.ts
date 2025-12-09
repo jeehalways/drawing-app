@@ -48,6 +48,10 @@ router.post("/", async (req, res) => {
       data: {
         name: parsed.name,
         birthday: new Date(parsed.birthday),
+        // Default avatar for manual users:
+        avatar: `https://api.dicebear.com/8.x/thumbs/svg?seed=${encodeURIComponent(
+          parsed.name
+        )}`,
       },
     });
 
@@ -141,7 +145,13 @@ router.get("/:id", async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json(user);
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      birthday: user.birthday,
+      avatar: user.avatar, // ensures avatar is included
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
