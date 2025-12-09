@@ -18,9 +18,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
   // CASE 2: Firebase user (Google/GitHub) → show full profile
   if (user) {
-    document.getElementById("userName").textContent = `Welcome ${
+    document.getElementById("userName").textContent = `Welcome, ${
       user.displayName || "User"
-    }`;
+    }!`;
     document.getElementById("userEmail").textContent = user.email || "";
     document.getElementById("userInfo").classList.remove("hidden");
 
@@ -35,10 +35,22 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
   // CASE 3: manual user (no Firebase user, but userId present in URL)
   if (!user && userId) {
-    console.log("Manual user detected → no Firebase profile available.");
-    document.getElementById("userName").textContent = "Welcome!";
-    document.getElementById("userEmail").textContent = "";
-    document.getElementById("userInfo").classList.remove("hidden");
+    console.log("Manual user detected → fetching profile...");
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/register/${userId}`);
+      const manualUser = await res.json();
+
+      document.getElementById("userName").textContent = manualUser.name
+        ? `Welcome, ${manualUser.name}!`
+        : "Welcome!";
+      document.getElementById("userEmail").textContent = "";
+      document.getElementById("userInfo").classList.remove("hidden");
+    } catch (err) {
+      console.error("Could not load manual user:", err);
+      document.getElementById("userName").textContent = "Welcome!";
+      document.getElementById("userInfo").classList.remove("hidden");
+    }
   }
 });
 
