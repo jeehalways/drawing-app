@@ -1,5 +1,5 @@
-import prisma from "../src/config/db";
+import { disconnectPrisma } from "./test-utils";
 
 export default async function teardown() {
-  await prisma.$disconnect();
+  await disconnectPrisma();
 }

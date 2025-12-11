@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import prisma from "../config/db";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
@@ -53,12 +54,20 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(newDrawing);
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      (error as Prisma.PrismaClientKnownRequestError).code === "P2003"
+    ) {
+      return res.status(400).json({ message: "Invalid userId" });
+    }
+    if (error instanceof ZodError) {
       return res.status(400).json({ errors: error.issues });
     }
+
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
+
 });
 
 router.get("/", async (req, res) => {
