@@ -1,11 +1,3 @@
-// Load env based on NODE_ENV
-import { config } from "dotenv";
-
-// Load .env.test when running tests, otherwise default to .env
-config({
-  path: process.env.NODE_ENV === "test" ? ".env.test" : undefined,
-});
-
 import { PrismaClient } from "@prisma/client";
 
 // Prevent creating multiple PrismaClients in watch/dev/test environments

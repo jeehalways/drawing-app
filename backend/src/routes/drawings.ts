@@ -42,6 +42,8 @@ const drawingSchema = z.object({
  *         description: Validation error
  */
 router.post("/", async (req, res) => {
+  console.log("💾 Saving drawing to DB:", process.env.DATABASE_URL);
+
   try {
     const parsed = drawingSchema.parse(req.body);
 
@@ -67,7 +69,6 @@ router.post("/", async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
-
 });
 
 router.get("/", async (req, res) => {

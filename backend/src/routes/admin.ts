@@ -20,6 +20,8 @@ const router = Router();
  *         description: Unauthorized
  */
 router.get("/drawings", verifyAdmin, async (_req, res) => {
+  console.log("📥 Fetching drawings from DB:", process.env.DATABASE_URL);
+
   try {
     const drawings = await prisma.drawing.findMany({
       include: {
