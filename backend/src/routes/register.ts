@@ -11,6 +11,29 @@ const registerSchema = z.object({
   }),
 });
 
+/**
+ * @openapi
+ * /api/register:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Register a user manually (name + birthday)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/RegisterUserInput"
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       400:
+ *         description: Invalid input
+ */
 //Manual register (POST /api/register)
 router.post("/", async (req, res) => {
   try {
@@ -39,9 +62,31 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * GET /api/register/:id
- * Return user profile (used by paint.js for manual users)
+ * @openapi
+ * /api/register/{id}:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get a user's public profile
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: User ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User profile returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       404:
+ *         description: User not found
  */
+
+// GET /api/register/:id Return user profile (used by paint.js for manual users)
 router.get("/:id", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({

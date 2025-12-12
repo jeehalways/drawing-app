@@ -8,10 +8,11 @@ const router = Router();
  *   get:
  *     tags:
  *       - Health
- *     summary: Health check
+ *     summary: API health check
+ *     description: Simple endpoint to verify that the API is running.
  *     responses:
  *       200:
- *         description: API is running
+ *         description: API is running correctly
  *         content:
  *           application/json:
  *             schema:
@@ -21,6 +22,7 @@ const router = Router();
  *                   type: string
  *                   example: ok
  */
+
 router.get("/", (_req, res) => {
   res.json({ status: "ok" });
 });

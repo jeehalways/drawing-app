@@ -4,6 +4,42 @@ import prisma from "../config/db";
 
 const router = Router();
 
+/**
+ * @openapi
+ * /api/register/firebase:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Register or log in a user using Firebase token
+ *     description: Validates a Firebase ID token and returns or creates a user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Firebase ID token
+ *     responses:
+ *       200:
+ *         description: User created or found successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: string
+ *       400:
+ *         description: Missing token
+ *       401:
+ *         description: Invalid Firebase token
+ */
+
 router.post("/", async (req, res) => {
   console.log("🔥 /api/register/firebase HIT");
   console.log("Request body:", req.body);

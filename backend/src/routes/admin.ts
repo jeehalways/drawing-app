@@ -10,15 +10,25 @@ const router = Router();
  *   get:
  *     tags:
  *       - Admin
- *     summary: Get all drawings with their user information (admin only)
+ *     summary: Get all drawings with user information (admin only)
+ *     description: Returns a list of all drawings including user details. Requires Firebase admin token.
  *     security:
  *       - FirebaseAuth: []
  *     responses:
  *       200:
- *         description: List of drawings
+ *         description: Successfully retrieved list of drawings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/DrawingWithUser"
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - missing or invalid token
+ *       403:
+ *         description: Forbidden - user is not an admin
  */
+
 router.get("/drawings", verifyAdmin, async (_req, res) => {
   console.log("📥 Fetching drawings from DB:", process.env.DATABASE_URL);
 
@@ -43,6 +53,7 @@ router.get("/drawings", verifyAdmin, async (_req, res) => {
  *     tags:
  *       - Admin
  *     summary: Delete a drawing by ID (admin only)
+ *     description: Deletes a drawing if it exists. Requires Firebase admin token.
  *     security:
  *       - FirebaseAuth: []
  *     parameters:
@@ -50,12 +61,25 @@ router.get("/drawings", verifyAdmin, async (_req, res) => {
  *         in: path
  *         required: true
  *         description: Drawing ID
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Drawing deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Deleted
+ *                 deleted:
+ *                   $ref: "#/components/schemas/Drawing"
  *       404:
  *         description: Drawing not found
  */
+
 router.delete("/drawings/:id", verifyAdmin, async (req, res) => {
   const { id } = req.params;
 

@@ -17,30 +17,26 @@ const drawingSchema = z.object({
  *     tags:
  *       - Drawings
  *     summary: Save a drawing for a user
+ *     description: Stores a drawing linked to an existing user.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - userId
- *               - imageData
- *             properties:
- *               userId:
- *                 type: string
- *                 format: uuid
- *                 example: "11111111-1111-1111-1111-111111111111"
- *               imageData:
- *                 type: string
- *                 description: Base64 string of the drawing image
- *                 example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+ *             $ref: "#/components/schemas/CreateDrawingInput"
  *     responses:
  *       201:
- *         description: Drawing saved
+ *         description: Drawing saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Drawing"
  *       400:
- *         description: Validation error
+ *         description: Validation error or invalid userId
+ *       500:
+ *         description: Server error
  */
+
 router.post("/", async (req, res) => {
   console.log("💾 Saving drawing to DB:", process.env.DATABASE_URL);
 
@@ -70,6 +66,27 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+/**
+ * @openapi
+ * /api/drawings:
+ *   get:
+ *     tags:
+ *       - Drawings
+ *     summary: Get all drawings with user info
+ *     description: Returns drawings newest-first including limited user fields.
+ *     responses:
+ *       200:
+ *         description: List of all drawings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/DrawingWithUser"
+ *       500:
+ *         description: Could not load drawings
+ */
 
 router.get("/", async (req, res) => {
   try {
