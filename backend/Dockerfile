@@ -8,16 +8,17 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --production=false
 
-# Copy the rest of the backend code
+# Copy all backend code
 COPY . .
 
-# Build Prisma client
+# Generate Prisma client
 RUN npx prisma generate
 
-# Expose port (Render will assign PORT env var)
+# Expose port Render assigns at runtime
 EXPOSE 3000
 
-# Start server
+# Start the server
 CMD ["npm", "start"]
+
