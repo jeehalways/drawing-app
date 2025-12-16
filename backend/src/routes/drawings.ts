@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z, ZodError } from "zod";
 import prisma from "../config/db";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
@@ -53,8 +53,8 @@ router.post("/", async (req, res) => {
     res.status(201).json(newDrawing);
   } catch (error) {
     if (
-      error instanceof PrismaClientKnownRequestError &&
-      error.code === "P2003"
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      (error as Prisma.PrismaClientKnownRequestError).code === "P2003"
     ) {
       return res.status(400).json({ message: "Invalid userId" });
     }
