@@ -1,23 +1,25 @@
-# Use official Node.js image
-FROM node:20-alpine
+# Use Debian-based Node image (Prisma-safe)
+FROM node:20
 
-# Create app directory
 WORKDIR /app
 
-# Copy package.json first (for caching installs)
+# Install dependencies first (better caching)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy all backend code
+# Copy source
 COPY . .
 
+# Generate Prisma Client at build time
+RUN npx prisma generate
+
+# Build TypeScript
 RUN npm run build
 
 EXPOSE 3000
 
-# Prisma generate happens at runtime, NOT build time
-CMD sh -c "npx prisma generate && node dist/index.js"
+# Start server
+CMD ["node", "dist/index.js"]
+
 
 
