@@ -2,14 +2,33 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: drawing_user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: drawing_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U drawing_user"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://drawing_user:password@localhost:5432/drawing_test?schema=public
 
     defaults:
       run:
@@ -31,6 +50,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
 
       - name: Build backend
         run: npm run build
