@@ -1,4 +1,9 @@
-import "./env-loader";
+// Load environment variables
+import dotenv from "dotenv";
+
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 import app from "./app";
 import logger from "./config/logger";
