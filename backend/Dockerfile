@@ -13,13 +13,11 @@ RUN npm install
 # Copy all backend code
 COPY . .
 
-# Generate Prisma client
 RUN npm run build
-RUN npx prisma generate
 
-# Expose port Render assigns at runtime
 EXPOSE 3000
 
-# Start the server
-CMD ["node", "dist/index.js"]
+# Prisma generate happens at runtime, NOT build time
+CMD sh -c "npx prisma generate && node dist/index.js"
+
 
