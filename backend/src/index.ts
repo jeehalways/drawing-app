@@ -1,5 +1,9 @@
-// LOAD ENVIRONMENT BEFORE ANYTHING ELSE
-import "./env-loader";
+if (process.env.NODE_ENV !== "production") {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require("dotenv").config({
+    path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+  });
+}
 
 import app from "./app";
 import logger from "./config/logger";
