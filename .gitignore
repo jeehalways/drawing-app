@@ -14,3 +14,5 @@ backend/prisma/migrations/.DS_Store
 # Jest
 backend/coverage/
 backend/jest-cache/
+
+node_modules/
