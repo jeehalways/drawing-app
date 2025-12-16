@@ -1,31 +1,19 @@
 import admin from "firebase-admin";
-import path from "path";
 
 const isTest = process.env.NODE_ENV === "test";
 
-if (!isTest) {
-  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT;
+if (!isTest && !admin.apps.length) {
+  const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
-  if (!serviceAccountPath) {
-    console.warn(
-      "❌ Firebase service account not set. Firebase NOT initialized."
-    );
+  if (!json) {
+    console.warn("❌ FIREBASE_SERVICE_ACCOUNT_JSON not set");
   } else {
-    try {
-      const resolvedPath = path.resolve(process.cwd(), serviceAccountPath);
-      const serviceAccount = require(resolvedPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(json)),
+    });
 
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-
-      console.log("🔥 Firebase Admin initialized.");
-    } catch (err) {
-      console.error("❌ Failed to load Firebase service account file:", err);
-    }
+    console.log("🔥 Firebase Admin initialized");
   }
-} else {
-  console.log("🧪 Firebase initialization skipped (NODE_ENV=test)");
 }
 
 export default admin;
