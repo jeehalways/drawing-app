@@ -1,30 +1,32 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-// Prevent creating multiple PrismaClients in watch/dev/test environments
 declare global {
   // eslint-disable-next-line no-var
   var __prisma: PrismaClient | undefined;
 }
 
-const prismaGlobal = globalThis as unknown as typeof global & {
-  __prisma?: PrismaClient;
-};
+// Create a single pg Pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+// Create Prisma adapter
+const adapter = new PrismaPg(pool);
 
 const prisma =
-  prismaGlobal.__prisma ??
+  global.__prisma ??
   new PrismaClient({
-    // Disable query batching in test environment to prevent transaction issues
-    ...(process.env.NODE_ENV === "test"
-      ? {
-          datasources: {
-            db: {
-              url: process.env.DATABASE_URL,
-            },
-          },
-        }
-      : {}),
+    adapter,
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
   });
 
-if (!prismaGlobal.__prisma) prismaGlobal.__prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  global.__prisma = prisma;
+}
 
 export default prisma;
