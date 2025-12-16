@@ -51,6 +51,9 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Push Prisma schema to test DB
+        run: npx prisma db push
+
       - name: Build backend
         run: npm run build
 
