@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: drawing-postgres
+    environment:
+      POSTGRES_USER: drawing_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: drawing_app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: drawing-backend
+    environment:
+      DATABASE_URL: postgresql://drawing_user:password@postgres:5432/drawing_app?schema=public
+      NODE_ENV: production
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
