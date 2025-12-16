@@ -9,8 +9,8 @@ document.getElementById("modeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
 });
 
-//  QR CODE GENERATION
-const registerURL = window.location.origin + "/frontend/register.html";
+// QR CODE GENERATION 
+const registerURL = `${window.location.origin}/register.html`;
 
 QRCode.toCanvas(document.getElementById("qrCanvas"), registerURL, (err) => {
   if (err) console.error("QR Error:", err);
@@ -18,7 +18,7 @@ QRCode.toCanvas(document.getElementById("qrCanvas"), registerURL, (err) => {
 
 //  MANUAL REGISTER BUTTON
 document.getElementById("manualBtn").addEventListener("click", () => {
-  window.location.href = "register.html";
+  window.location.href = "/register.html";
 });
 
 //  GOOGLE LOGIN
@@ -70,7 +70,7 @@ async function sendTokenToBackend(token) {
     }
 
     // Redirect to canvas
-    window.location.href = `paint.html?userId=${data.userId}`;
+    window.location.href = `/paint.html?userId=${data.userId}`;
   } catch (err) {
     alert("Connection error: " + err.message);
   }
@@ -78,5 +78,5 @@ async function sendTokenToBackend(token) {
 
 // Admin login button
 document.getElementById("adminBtn").addEventListener("click", () => {
-  window.location.href = "admin-login.html";
+  window.location.href = "/admin-login.html";
 });
