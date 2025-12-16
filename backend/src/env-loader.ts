@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 
-// Only load .env files locally or in tests
-if (process.env.NODE_ENV !== "production") {
+const isPrisma =
+  process.argv.some((arg) => arg.includes("prisma")) ||
+  process.env.PRISMA_GENERATE === "true";
+
+if (!isPrisma && process.env.NODE_ENV !== "production") {
   dotenv.config({
     path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
   });
