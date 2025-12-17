@@ -541,28 +541,25 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 });
 
 // Save to backend
-// Save to backend
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
 
-  const token = localStorage.getItem("userToken");
-
-  let headers = {
+  const headers = {
     "Content-Type": "application/json",
   };
 
-  let body = { imageData };
+  const body = { imageData };
 
+  // Firebase user → send token
+  const token = localStorage.getItem("userToken");
   if (token) {
-    // Firebase-auth user
     headers.Authorization = `Bearer ${token}`;
-  } else {
-    // Manual user
-    if (!userId) {
-      alert("User not identified. Please register again.");
-      return;
-    }
+  } else if (userId) {
+    // Manual user → send userId
     body.userId = userId;
+  } else {
+    alert("User not authenticated");
+    return;
   }
 
   try {
@@ -572,17 +569,16 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
+    if (res.status === 201) {
+      alert("Drawing saved!");
+    } else {
       const err = await res.json().catch(() => ({}));
       console.error("Save error:", err);
       alert("Failed to save drawing");
-      return;
     }
-
-    alert("Drawing saved!");
   } catch (err) {
     console.error("Network error:", err);
-    alert("Could not connect to server");
+    alert("Network error while saving");
   }
 });
 
