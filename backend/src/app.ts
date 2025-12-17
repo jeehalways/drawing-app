@@ -23,9 +23,6 @@ app.use(
   })
 );
 
-// Allow preflight requests
-app.options("/*", cors());
-
 app.use(express.json());
 
 // simple request log middleware
