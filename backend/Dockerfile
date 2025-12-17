@@ -1,12 +1,12 @@
 FROM node:20
 
-WORKDIR /app/backend
+WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy Prisma config + schema first
+# Copy Prisma config + schema
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 
@@ -22,12 +22,3 @@ RUN npm run build
 EXPOSE 3000
 
 CMD ["node", "dist/index.js"]
-
-
-
-
-
-
-
-
-
