@@ -541,22 +541,49 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 });
 
 // Save to backend
+// Save to backend
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
+
   const token = localStorage.getItem("userToken");
 
-  const res = await fetch(`${API_BASE_URL}/api/drawings`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ imageData }),
-  });
+  let headers = {
+    "Content-Type": "application/json",
+  };
 
-  res.status === 201
-    ? alert("Drawing saved!")
-    : alert("Failed to save drawing");
+  let body = { imageData };
+
+  if (token) {
+    // Firebase-auth user
+    headers.Authorization = `Bearer ${token}`;
+  } else {
+    // Manual user
+    if (!userId) {
+      alert("User not identified. Please register again.");
+      return;
+    }
+    body.userId = userId;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/drawings`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error("Save error:", err);
+      alert("Failed to save drawing");
+      return;
+    }
+
+    alert("Drawing saved!");
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Could not connect to server");
+  }
 });
 
 // Donwload drawings
