@@ -45,10 +45,9 @@ describe("Drawings API", () => {
     expect(drawings.length).toBe(1);
   });
 
-  test("POST /api/drawings returns 400 for invalid payload", async () => {
+  test("POST /api/drawings returns 400 when imageData is missing", async () => {
     const res = await request(app).post("/api/drawings").send({
-      userId: "not-a-uuid",
-      imageData: "",
+      userId: "some-user-id",
     });
 
     expect(res.status).toBe(400);

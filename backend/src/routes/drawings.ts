@@ -6,8 +6,8 @@ import { Prisma } from "@prisma/client";
 const router = Router();
 
 const drawingSchema = z.object({
-  userId: z.string().uuid(),
   imageData: z.string().min(1),
+  userId: z.string().optional(),
 });
 
 /**
@@ -42,6 +42,10 @@ router.post("/", async (req, res) => {
 
   try {
     const parsed = drawingSchema.parse(req.body);
+
+    if (!parsed.userId) {
+      return res.status(400).json({ message: "Missing userId" });
+    }
 
     const newDrawing = await prisma.drawing.create({
       data: {
