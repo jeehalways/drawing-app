@@ -16,7 +16,7 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:3000",
-        "https://drawing-app-project.netlify.app",
+        "https://drawing-project-app.netlify.app",
       ];
 
       // allow server-to-server & tools like curl/postman
