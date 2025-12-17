@@ -9,7 +9,7 @@ document.getElementById("modeToggle").addEventListener("click", () => {
 });
 
 // QR CODE GENERATION
-const registerURL = `${window.location.origin}/register.html`;
+const registerURL = `${window.location.origin}/home.html`;
 
 QRCode.toCanvas(document.getElementById("qrCanvas"), registerURL, (err) => {
   if (err) console.error("QR Error:", err);
