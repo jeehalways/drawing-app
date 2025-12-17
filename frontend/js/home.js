@@ -1,7 +1,6 @@
 console.log("home.js loaded");
 
-//  Firebase Init
-firebase.initializeApp(firebaseConfig);
+//  Firebase auth
 const auth = firebase.auth();
 
 //  THEME TOGGLE
@@ -9,7 +8,7 @@ document.getElementById("modeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
 });
 
-// QR CODE GENERATION 
+// QR CODE GENERATION
 const registerURL = `${window.location.origin}/register.html`;
 
 QRCode.toCanvas(document.getElementById("qrCanvas"), registerURL, (err) => {
@@ -56,9 +55,11 @@ document.getElementById("githubBtn").addEventListener("click", async () => {
 //  - Returns { userId }
 async function sendTokenToBackend(token) {
   try {
-    const res = await fetch("http://localhost:3000/api/register/firebase", {
+    const res = await fetch(`${API_BASE_URL}/api/register/firebase`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ token }),
     });
 

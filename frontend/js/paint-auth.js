@@ -1,7 +1,6 @@
 console.log("paint-auth.js loaded");
 
-firebase.initializeApp(firebaseConfig);
-
+// Firebase auth
 const auth = firebase.auth();
 
 // This prevents paint.js from running before auth is ready
@@ -18,9 +17,11 @@ auth.onAuthStateChanged(async (user) => {
   const token = await user.getIdToken();
 
   // Verify user in backend
-  const res = await fetch("http://localhost:3000/api/register/firebase/check", {
+  const res = await fetch(`${API_BASE_URL}/api/register/firebase/check`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ token }),
   });
 

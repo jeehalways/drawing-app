@@ -1,6 +1,3 @@
-// FIREBASE INIT (required for logout and auth checks)
-firebase.initializeApp(firebaseConfig);
-
 console.log("paint.js loaded");
 
 //  AUTH PROTECTION + USER INFO
@@ -38,7 +35,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     console.log("Manual user detected → fetching profile...");
 
     try {
-      const res = await fetch(`http://localhost:3000/api/register/${userId}`);
+      const res = await fetch(`${API_BASE_URL}/api/register/${userId}`);
       const manualUser = await res.json();
 
       // Display name
@@ -546,11 +543,15 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 // Save to backend
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
+  const token = localStorage.getItem("userToken");
 
-  const res = await fetch("http://localhost:3000/api/drawings", {
+  const res = await fetch(`${API_BASE_URL}/api/drawings`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, imageData }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ imageData }),
   });
 
   res.status === 201

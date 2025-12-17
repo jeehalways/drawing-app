@@ -6,3 +6,14 @@ const firebaseConfig = {
   messagingSenderId: "217750669460",
   appId: "1:217750669460:web:613c608fcfa8d4f21b4c81",
 };
+
+// Firebase init
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+// Backend API base URL
+const API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://drawing-app-q0sx.onrender.com";

@@ -3,10 +3,7 @@ console.log("admin-login.js loaded");
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded");
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  console.log("Firebase initialized");
-
+  // Firebase auth
   const auth = firebase.auth();
 
   // Auto-refresh token

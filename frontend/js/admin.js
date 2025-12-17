@@ -1,9 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Admin page DOM loaded");
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-
   // Full dataset of drawings (for filtering)
   let allDrawings = [];
   let currentSearch = "";
@@ -161,13 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!confirm("Are you sure you want to delete this drawing?")) return;
 
-        const delRes = await fetch(
-          `http://localhost:3000/api/admin/drawings/${id}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const delRes = await fetch(`${API_BASE_URL}/api/admin/drawings/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (delRes.status === 200) {
           loadDrawings(); // refresh UI
@@ -230,8 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load all drawings from backend
   async function loadDrawings() {
-    const res = await fetch("http://localhost:3000/api/admin/drawings", {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(`${API_BASE_URL}/api/admin/drawings`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (res.status !== 200) {
