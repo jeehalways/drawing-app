@@ -21,4 +21,5 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/index.js"]
+# Run migrations automatically, then start server
+CMD npx prisma migrate deploy && node dist/src/index.js
