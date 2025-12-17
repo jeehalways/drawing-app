@@ -544,41 +544,34 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const imageData = canvas.toDataURL("image/png");
 
-  const headers = {
-    "Content-Type": "application/json",
-  };
+  // Support both manual users (URL) and Firebase users (paint-auth.js)
+  const finalUserId = userId || window.userId;
 
-  const body = { imageData };
-
-  // Firebase user → send token
-  const token = localStorage.getItem("userToken");
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  } else if (userId) {
-    // Manual user → send userId
-    body.userId = userId;
-  } else {
-    alert("User not authenticated");
+  if (!finalUserId) {
+    alert("User not identified. Please log in again.");
     return;
   }
 
   try {
     const res = await fetch(`${API_BASE_URL}/api/drawings`, {
       method: "POST",
-      headers,
-      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: finalUserId,
+        imageData,
+      }),
     });
 
     if (res.status === 201) {
       alert("Drawing saved!");
     } else {
-      const err = await res.json().catch(() => ({}));
+      const err = await res.json();
       console.error("Save error:", err);
       alert("Failed to save drawing");
     }
   } catch (err) {
     console.error("Network error:", err);
-    alert("Network error while saving");
+    alert("Could not connect to server");
   }
 });
 
